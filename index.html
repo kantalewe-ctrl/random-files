@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Peringatan Keamanan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Nosifer&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(circle, #220000, #000);
+  color: red;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Orbitron', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: shake 0.15s infinite;
+}
+
+/* layar tap untuk fullscreen */
+.fullscreenBtn {
+  position: fixed;
+  inset: 0;
+  background: black;
+  color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  z-index: 99;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* container utama */
+.container {
+  border: 3px solid red;
+  box-shadow: 0 0 40px red;
+  padding: 25px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  background: rgba(0,0,0,0.75);
+  display: none;
+}
+
+h1 {
+  font-family: 'Nosifer', cursive;
+  animation: blink 0.8s infinite;
+  margin-bottom: 15px;
+}
+
+#typing {
+  min-height: 90px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* progress scan */
+.progress {
+  width: 100%;
+  height: 18px;
+  border: 1px solid red;
+  margin: 10px 0;
+}
+.bar {
+  height: 100%;
+  width: 0%;
+  background: red;
+}
+
+/* log scan */
+#scanlog {
+  font-size: 12px;
+  text-align: left;
+  height: 70px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* timer */
+#timer {
+  margin-top: 10px;
+  font-size: 18px;
+  animation: blink 1s infinite;
+}
+
+/* tombol back palsu */
+#fakeBack {
+  margin-top: 15px;
+  padding: 10px 18px;
+  background: black;
+  border: 2px solid red;
+  color: red;
+  font-family: Orbitron, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 0 15px red;
+}
+#fakeBack:active { transform: scale(0.95); }
+
+/* alert alamat */
+#addressAlert {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #ff5555;
+  display: none;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,100% {opacity:1}
+  50% {opacity:0}
+}
+@keyframes shake {
+  0% {transform:translate(0)}
+  25% {transform:translate(1px,-1px)}
+  50% {transform:translate(-1px,1px)}
+  75% {transform:translate(1px,1px)}
+  100% {transform:translate(0)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="fullscreenBtn" onclick="startPrank()">
+  ⚠️ TAP UNTUK MEMVERIFIKASI KEAMANAN ⚠️<br>
+  (Jangan tutup halaman)
+</div>
+
+<div class="container" id="main">
+  <h1>PERINGATAN!</h1>
+
+  <div id="typing"></div>
+
+  <div class="progress">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <div id="scanlog"></div>
+
+  <div id="timer"></div>
+
+  <button id="fakeBack" onclick="fakeBack()">⬅ KEMBALI</button>
+
+  <div id="addressAlert"></div>
+</div>
+
+<script>
+// ===== TEKS NGETIK =====
+const text =
+"PERINGATAN!\nWebsite ini berbahaya untuk perangkat anda.\n" +
+"Data-data bisa diretas.\n" +
+"Memulai pemindaian sistem...";
+let index = 0;
+
+function typeText() {
+  if (index < text.length) {
+    document.getElementById("typing").innerHTML +=
+      text[index] === "\n" ? "<br>" : text[index];
+    index++;
+    setTimeout(typeText, 50);
+  }
+}
+
+// ===== FILE PALSU UNTUK SCAN =====
+const files = [
+  "WhatsApp/database.db",
+  "Android/system/root.apk",
+  "DCIM/private.jpg",
+  "Chrome/session.data",
+  "IMEI/config.sys"
+];
+
+// ===== START PRANK =====
+let progress = 0;
+let waktu = 30;
+
+function startPrank() {
+  // fullscreen (butuh interaksi)
+  document.documentElement.requestFullscreen?.();
+
+  // jebak tombol back browser
+  history.pushState(null, null, location.href);
+  window.onpopstate = () => {
+    history.pushState(null, null, location.href);
+  };
+
+  document.querySelector(".fullscreenBtn").style.display = "none";
+  document.getElementById("main").style.display = "block";
+
+  typeText();
+  fakeScan();
+  countdown();
+}
+
+// ===== FAKE SCAN =====
+function fakeScan() {
+  const bar = document.getElementById("bar");
+  const log = document.getElementById("scanlog");
+
+  const scan = setInterval(() => {
+    if (progress >= 100) {
+      clearInterval(scan);
+      log.innerHTML = "⛔ ANCAMAN TERDETEKSI!<br>" + log.innerHTML;
+      return;
+    }
+    progress += Math.random() * 8;
+    bar.style.width = Math.min(progress,100) + "%";
+
+    log.innerHTML =
+      "Scanning: " +
+      files[Math.floor(Math.random() * files.length)] +
+      "<br>" + log.innerHTML;
+  }, 500);
+}
+
+// ===== COUNTDOWN =====
+function countdown() {
+  const t = document.getElementById("timer");
+  const cd = setInterval(() => {
+    t.innerHTML = "🔒 Sistem terkunci: " + waktu + " detik";
+    waktu--;
+    if (waktu < 0) {
+      clearInterval(cd);
+      t.innerHTML = "✔ Sistem selesai (prank 😄)";
+    }
+  }, 1000);
+}
+
+// ===== BACK PALSU + ALAMAT & IP PALSU =====
+function fakeBack() {
+  history.pushState(null, null, location.href);
+
+  const alertBox = document.getElementById("addressAlert");
+  alertBox.style.display = "block";
+
+  // IP PALSU (random)
+  function fakeIP() {
+    return Array.from({length: 4}, () =>
+      Math.floor(Math.random() * 255) + 1
+    ).join(".");
+  }
+
+  alertBox.innerHTML =
+    "⚠️ PERINGATAN SERIUS!<br>" +
+    "Lokasi anda terdeteksi:<br><b>" +
+    "Pemalang, Jawa Tengah, Indonesia</b><br><br>" +
+    "Alamat IP terdeteksi:<br><b>" +
+    fakeIP() +
+    "</b><br><br>" +
+    "Mohon tetap berada di halaman ini!";
+}
+</script>
+
+</body>
+</html>
